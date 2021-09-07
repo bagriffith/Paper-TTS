@@ -46,11 +46,11 @@ def generate_audio_for_file(text_path, out_path):
     text_block = text_block.translate(unicode)
     text_block = '\n' + text_block
 
-    text_block_list = re.split(r'(\n[\t ]*#+.*\n)', text_block)
-    text_block_list = [b for b in text_block_list if b]
+    text_block_list = re.split(r'((?<=[\r\n])[\t ]*#+[ \t\f\v\S]*[\r\n])', text_block)
+    text_block_list = [b.strip() for b in text_block_list if not b.isspace() and b]
     del text_block
 
-    MAX_SIZE = 5000
+    MAX_SIZE = 4999
     _split_on_order = ['\n\n', '.\n', '. ', ' ', None]
     for sep in _split_on_order:
         for i, text_block in enumerate(text_block_list):
@@ -59,14 +59,14 @@ def generate_audio_for_file(text_path, out_path):
                 if sep is None:
                     raise RuntimeError("Couldn't divide up text to " + str(MAX_SIZE) + " char")
 
-                text_block_list[i:i+1] = [s+sep for s in text_block.split(sep) if s]
+                text_block_list[i:i+1] = [s+sep for s in text_block.split(sep) if not s.isspace() and s]
     
     tmp_paths = [out_path + '.' + str(n) for n in range(len(text_block_list))]
 
     block_titles = []
 
     for text_block, block_out_path in zip(text_block_list, tmp_paths):
-        title = re.search(r'(?<=#)[^#\n]+(?=#*.*\n)', text_block)
+        title = re.search(r'(?<=#)[^#\n]+(?=#*.*)$', text_block)
         block_titles.append(title.group(0).strip() if title is not None else '')
         
         generate_audio_for_text(text_block if title is None else block_titles[-1],
