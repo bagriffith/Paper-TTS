@@ -139,9 +139,14 @@ def generate_audio_for_text(text_block, out_path, is_title=False):
 
 
 if __name__ == '__main__':
-    if len(sys.argv) != 3:
+    if len(sys.argv) == 3:
+        text_file = sys.argv[1]
+        out_file = sys.argv[2]
+    elif len(sys.argv) == 2:
+        text_file = sys.argv[1]
+        out_file = os.path.splitext(text_file)[0] + '.mp3'
+    else:
         raise ValueError('Must be run as "paper-to-mp3.py "')
     
-    text_file = sys.argv[1]
-    out_file = sys.argv[2]
+    
     generate_audio_for_file(text_file, out_file)
